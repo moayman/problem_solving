@@ -1,6 +1,8 @@
 #include <iostream>
 using namespace std;
 
+// Binary search on the length of subset
+// loop using the length from the binary search and check if valid
 int n, t, data[100000], sum[100000];
 
 bool can(int d)

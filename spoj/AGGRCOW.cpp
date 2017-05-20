@@ -7,7 +7,7 @@ using namespace std;
 // Keep trying until you fail
 // distance 1 works 2 works 3 works 4 doesn't
 
-int d[10000], n, c;
+int d[100000], n, c;
 
 bool can(int width, int cows)
 {
