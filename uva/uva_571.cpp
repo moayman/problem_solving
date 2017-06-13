@@ -1,9 +1,140 @@
+/* BFS */
+#include <iostream>
+#include <string>
+#include <vector>
+#include <deque>
+using namespace std;
+
+string actions[] = { "fill A", "fill B", "pour A B", "pour B A", "empty A", "empty B" };
+
+#define MOVES 6
+#define fillA 0
+#define fillB 1
+#define pourAB 2
+#define pourBA 3
+#define emptyA 4
+#define emptyB 5
+
+struct node
+{
+	unsigned int A, B, move;
+	node(unsigned int _A = 0, unsigned int _B = 0, unsigned int _move = 0)
+	{
+		A = _A;
+		B = _B;
+		move = _move;
+	}
+};
+
+bool visited[1001][1001];
+node parent[1001][1001];
+deque<node> q;
+unsigned int cA, cB, N;
+
+void print(node &n)
+{
+	if (n.move == MOVES)
+		return;
+
+	print(parent[n.A][n.B]);
+	cout << actions[n.move] << endl;
+}
+
+void processNode(node &parentNode, node &n)
+{
+	if (!visited[n.A][n.B])
+	{
+		q.push_back(n);
+		visited[n.A][n.B] = true;
+		parent[n.A][n.B] = parentNode;
+	}
+}
+
+void solve()
+{
+	q = deque<node>();
+	node n(0, 0, 6);
+	q.push_back(n);
+	while (!q.empty())
+	{
+		node currentNode = q.front();
+		q.pop_front();
+
+		if (currentNode.A == N || currentNode.B == N)
+		{
+			print(currentNode);
+			cout << "success" << endl;
+			return;
+		}
+
+		for (size_t i = 0; i < MOVES; i++)
+		{
+			switch (i)
+			{
+			case fillA:
+				if (currentNode.A != cA)
+					processNode(currentNode, node(cA, currentNode.B, fillA));
+				break;
+			case fillB:
+				if (currentNode.B != cB)
+					processNode(currentNode, node(currentNode.A, currentNode.B, fillB));
+				break;
+			case pourAB:
+				if (currentNode.A > 0 && currentNode.B != cB)
+				{
+					unsigned int availableB = cB - currentNode.B;
+					if (availableB >= currentNode.A)
+						processNode(currentNode, node(0, currentNode.B + currentNode.A, pourAB));
+					else
+						processNode(currentNode, node(currentNode.A - availableB, cB, pourAB));
+				}
+				break;
+			case pourBA:
+				if (currentNode.B > 0 && currentNode.A != cA)
+				{
+					unsigned int availableA = cA - currentNode.A;
+					if (availableA >= currentNode.B)
+						processNode(currentNode, node(currentNode.A + currentNode.B, 0, pourBA));
+					else
+						processNode(currentNode, node(cA + currentNode.B - availableA, 0, pourBA));
+				}
+				break;
+			case emptyA:
+				if (currentNode.A > 0)
+					processNode(currentNode, node(0, currentNode.B, emptyA));
+				break;
+			case emptyB:
+				if (currentNode.B > 0)
+					processNode(currentNode, node(currentNode.A, 0, emptyA));
+				break;
+			}
+		}
+	}
+}
+
+int main()
+{
+#ifdef AYMAN_PC
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#endif
+	while (cin >> cA >> cB >> N)
+	{
+		memset(visited, false, sizeof visited);
+		memset(parent, 0, sizeof parent);
+		solve();
+	}
+	return 0;
+}
+
+/* DFS */
 #include <iostream>
 #include <vector>
 #include <string>
+#include <cstring>
 using namespace std;
 
-#define MOVES 6
+string toOutput[] = { "fill A", "fill B", "empty A", "empty B", "pour A B", "pour B A" };
 
 #define fillA 0
 #define fillB 1
@@ -12,160 +143,114 @@ using namespace std;
 #define pourAB 4
 #define pourBA 5
 
-bool solved;
-unsigned int cA, cB, N, currentNode;
+int cA, cB, N;
+bool visited[1001][1001];
+vector<string> solution;
 
-struct node{
-	unsigned int action, currentA, currentB, availableA, availableB;
-	node* parent;
-	node(unsigned int a, unsigned int ca, unsigned int cb, node* p)
-	{
-		currentA = ca;
-		currentB = cb;
-		availableA = cA - ca;
-		availableB = cB - cb;
-		action = a;
-		parent = p;
-	}
-	node()
-	{
-		currentA = 0;
-		currentB = 0;
-		availableA = 0;
-		availableB = 0;
-		action = MOVES;
-		parent = NULL;
-	}
-	bool isSolved()
-	{
-		return currentB == N;
-	}
-};
-
-vector<node*> toExpand;
-
-void expand(node * n)
+bool solve(int a, int b)
 {
-	for (size_t i = 0; i < MOVES && !solved; i++)
+	if (b == N)
 	{
-		switch (i)
+		for (size_t i = 0; i < solution.size(); i++)
 		{
-		case fillA:
-			if (n->currentA != cA)
-			{
-				toExpand.push_back(new node(fillA, cA, n->currentB, n));
-				if (toExpand.back()->isSolved())
-					solved = true;
-			}
-			break;
-		case fillB:
-			if (n->currentB != cB)
-			{
-				toExpand.push_back(new node(fillB, n->currentA, cB, n));
-				if (toExpand.back()->isSolved())
-					solved = true;
-			}
-			break;
-		case emptyA:
-			if (n->currentA > 0)
-			{
-				toExpand.push_back(new node(emptyA, 0, n->currentB, n));
-				if (toExpand.back()->isSolved())
-					solved = true;
-			}
-			break;
-		case emptyB:
-			if (n->currentB > 0)
-			{
-				toExpand.push_back(new node(emptyB, n->currentA, 0, n));
-				if (toExpand.back()->isSolved())
-					solved = true;
-			}
-			break;
-		case pourAB:
-			if (n->currentA > 0 && n->currentB != cB)
-			{
-				if (n->availableB > n->currentA)
-				{
-					toExpand.push_back(new node(pourAB, 0, n->currentB + n->currentA, n));
-					if (toExpand.back()->isSolved())
-						solved = true;
-				}
-				else
-				{
-					toExpand.push_back(new node(pourAB, n->currentA - n->availableB, n->currentB + n->availableB, n));
-					if (toExpand.back()->isSolved())
-						solved = true;
-				}
-			}
-			break;
-		case pourBA:
-			if (n->currentB > 0 && n->currentA != cA)
-			{
-				if (n->availableA > n->currentB)
-				{
-					toExpand.push_back(new node(pourBA, n->currentA + n->currentB, 0, n));
-					if (toExpand.back()->isSolved())
-						solved = true;
-				}
-				else
-				{
-					toExpand.push_back(new node(pourBA, n->currentA + n->availableA, n->currentB - n->availableA, n));
-					if (toExpand.back()->isSolved())
-						solved = true;
-				}
-			}
-			break;
+			cout << solution[i] << endl;
+		}
+		cout << "success" << endl;
+		return true;
+	}
+
+	visited[a][b] = true;
+
+	// fill A
+	if (!visited[cA][b])
+	{
+		solution.push_back(toOutput[fillA]);
+		if (solve(cA, b))
+			return true;
+		solution.pop_back();
+	}
+	// fill B
+	if (!visited[a][cB])
+	{
+		solution.push_back(toOutput[fillB]);
+		if (solve(a, cB))
+			return true;
+		solution.pop_back();
+	}
+	// empty A
+	// fill B
+	if (!visited[0][b])
+	{
+		solution.push_back(toOutput[emptyA]);
+		if (solve(0, b))
+			return true;
+		solution.pop_back();
+	}
+	// empty B
+	if (!visited[a][0])
+	{
+		solution.push_back(toOutput[emptyB]);
+		if (solve(a, 0))
+			return true;
+		solution.pop_back();
+	}
+	// pour A B
+	if (a >= cB - b)
+	{
+		if (!visited[a - (cB - b)][cB])
+		{
+			solution.push_back(toOutput[pourAB]);
+			if (solve(a - (cB - b), cB))
+				return true;
+			solution.pop_back();
 		}
 	}
-	currentNode++;
+	else
+	{
+		if (!visited[0][a + b])
+		{
+			solution.push_back(toOutput[pourAB]);
+			if (solve(0, a + b))
+				return true;
+			solution.pop_back();
+		}
+	}
+	// pour B A
+	if (b >= cA - a)
+	{
+		if (!visited[cA][b - (cA - a)])
+		{
+			solution.push_back(toOutput[pourBA]);
+			if (solve(cA, b - (cA - a)))
+				return true;
+			solution.pop_back();
+		}
+	}
+	else
+	{
+		if (!visited[a + b][0])
+		{
+			solution.push_back(toOutput[pourBA]);
+			if (solve(a + b, 0))
+				return true;
+			solution.pop_back();
+		}
+	}
+
+	return false;
 }
 
 int main()
 {
-	bool endline = false;
-	while (scanf("%u %u %u", &cA, &cB, &N) == 3)
+#ifdef AYMAN_PC
+	freopen("input.txt", "r", stdin);
+	freopen("output.txt", "w", stdout);
+#endif
+	while (cin >> cA >> cB >> N)
 	{
-		if (endline)
-			printf("\n");
-		toExpand.clear();
-		solved = false;
-		currentNode = 0;
-		node* root = new node();
-		toExpand.push_back(root);
-		while (!solved && currentNode < toExpand.size())
-		{
-			expand(toExpand[currentNode]);
-		}
-		root = toExpand.back();
-		string toPrint;
-		do
-		{
-			switch (root->action)
-			{
-			case fillA:
-				toPrint = ("fill A\n") + toPrint;
-				break;
-			case fillB:
-				toPrint = ("fill B\n") + toPrint;
-				break;
-			case emptyA:
-				toPrint = ("empty A\n") + toPrint;
-				break;
-			case emptyB:
-				toPrint = ("empty B\n") + toPrint;
-				break;
-			case pourAB:
-				toPrint = ("pour A B\n") + toPrint;
-				break;
-			case pourBA:
-				toPrint = ("pour B A\n") + toPrint;
-				break;
-			}
-			root = root->parent;
-		} while (root != NULL);
-		printf("%ssuccess", toPrint.c_str());
-		endline = true;
+		solution.clear();
+		memset(visited, false, sizeof visited);
+		solve(0, 0);
 	}
 	return 0;
 }
