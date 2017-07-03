@@ -1,5 +1,4 @@
 #include <iostream>
-#include <cstring>
 using namespace std;
 
 int coin[120], dp[120][25100];
