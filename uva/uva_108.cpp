@@ -11,10 +11,6 @@ int n, A[N][N], maxi;
 
 int main()
 {
-#ifdef AYMAN_PC
-	freopen("input.txt", "r", stdin);
-	freopen("output.txt", "w", stdout);
-#endif
 	scanf("%d", &n);
 	for (int i = 1; i <= n; ++i)
 	{
