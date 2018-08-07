@@ -54,3 +54,49 @@ int main()
 	}
 	return 0;
 }
+
+// Rabin Karp solution
+
+// #include <iostream>
+// #include <cstring>
+// using namespace std;
+
+// const int N = 1e5 + 5, MOD = 1e9 + 7, base = 59;
+
+// int n;
+// char str[N];
+
+// inline void addLDigit(long long& h, int base, long long mod, char digit)	// 517 = (51*10 + 7)
+// {
+// 	h = ((h*base) % mod + digit) % mod;
+// }
+
+// inline void addMDigit(long long& h, long long p, long long mod, char digit)	//517 = (17 + 5*100)
+// {
+// 	h = (h + (digit*p) % mod) % mod;
+// }
+
+// int main()
+// {
+// #ifdef AYMAN_PC
+// 	freopen("input.txt", "r", stdin);
+// 	freopen("output.txt", "w", stdout);
+// #endif
+// 	while (~scanf("%s", str))
+// 	{
+// 		long long h1 = 0, h2 = 0, p = 1, maxPalindrome = 0;
+// 		n = strlen(str);
+// 		for (int i = n - 1; ~i; --i)
+// 		{
+// 			addLDigit(h1, base, MOD, str[i] - 'A');
+// 			addMDigit(h2, p, MOD, str[i] - 'A');
+// 			if (h1 == h2)  maxPalindrome = i;
+// 			p = (p*base) % MOD;
+// 		}
+// 		printf("%s", str);
+// 		for (int i = maxPalindrome - 1; ~i; --i)
+// 			printf("%c", str[i]);
+// 		printf("\n");
+// 	}
+// 	return 0;
+// }
