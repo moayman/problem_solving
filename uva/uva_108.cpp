@@ -67,6 +67,8 @@ int main()
 //			}
 //		}
 //		N++;
+//		// i = rowStart		,	a = rowEnd
+//		// j = columnStart	,	b = columnEnd
 //		for (size_t a = 1; a < N; a++)
 //		{
 //			for (size_t b = 1; b < N; b++)
