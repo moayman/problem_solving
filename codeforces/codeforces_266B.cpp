@@ -1,35 +1,32 @@
 #include <iostream>
+#include <vector>
+#include <string>
+ 
 using namespace std;
-
-void main()
+ 
+int main()
 {
-	size_t n, t;
-	cin >> n >> t;
-	char input;
-	char data[50], updatedData[50];
-	for (size_t i = 0; i < n; i++)
-	{
-		cin >> input;
-		data[i] = input;
-		updatedData[i] = input;
-	}
-	for (size_t i = 0; i < t; i++)
-	{
-		for (size_t j = 1; j < n; j++)
-		{
-			if (data[j] == 'G' && data[j - 1] == 'B')
-			{
-				updatedData[j - 1] = 'G';
-				updatedData[j] = 'B';
-			}
-		}
-		for (size_t j = 0; j < n; j++)
-		{
-			data[j] = updatedData[j];
-		}
-	}
-	for (size_t i = 0; i < n; i++)
-	{
-		cout << data[i];
-	}
+    int n, t;
+    cin >> n >> t;
+    string in;
+    cin >> in;
+    vector<int> pos;
+    for (int i = 0, j = 0; i < n; i++)
+    {
+        if (in[i] == 'B')
+            pos.push_back(i);
+    }
+    while(t) {
+        for (int i = 0; i < pos.size(); i++)
+        {
+            if(pos[i] < n - 1 && in[pos[i] + 1] == 'G') {
+                in[pos[i] + 1] = 'B';
+                in[pos[i]] = 'G';
+                pos[i]++;
+            }
+        }
+        t--;        
+    }
+    cout << in;
+    return 0;
 }
